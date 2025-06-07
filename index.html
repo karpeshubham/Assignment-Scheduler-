@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -84,7 +84,7 @@
     <label for="time">Due Time:</label>
     <input type="time" id="time">
 
-    <button onclick="addAssignment()">Add Assignment</button>
+    <button id="addBtn">Add Assignment</button>
   </div>
 
   <div class="list-section">
@@ -96,28 +96,26 @@
     document.addEventListener("DOMContentLoaded", function () {
       requestNotificationPermission();
       loadAssignments();
+
+      // Event binding to ensure button works
+      document.getElementById("addBtn").addEventListener("click", addAssignment);
+
       setInterval(checkLastHourNotifications, 600000); // every 10 min
       setInterval(checkNotifications, 3600000); // every 1 hour
     });
 
     function requestNotificationPermission() {
       if (!("Notification" in window)) {
-        alert("This browser does not support desktop notifications.");
+        alert("This browser does not support notifications.");
         return;
       }
 
       if (Notification.permission !== 'granted') {
         Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            checkNotifications();
-            checkLastHourNotifications();
-          } else {
-            alert("Please allow notifications to get assignment reminders.");
+          if (permission !== 'granted') {
+            alert("Please allow notifications for reminders.");
           }
         });
-      } else {
-        checkNotifications();
-        checkLastHourNotifications();
       }
     }
 
@@ -186,56 +184,4 @@
       const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
 
       assignments.forEach(item => {
-        const dueDateTime = new Date(item.date + 'T' + item.time);
-        const diffDays = Math.floor((dueDateTime - now) / (1000 * 60 * 60 * 24));
-
-        if (diffDays === 0) {
-          notify("Due Today", ${item.title} is due today at ${item.time});
-        } else if (diffDays === 1) {
-          notify("Due Tomorrow", ${item.title} is due tomorrow at ${item.time});
-        }
-      });
-    }
-
-    function checkLastHourNotifications() {
-      if (Notification.permission !== 'granted') return;
-
-      const now = new Date();
-      const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
-
-      assignments.forEach(item => {
-        const due = new Date(item.date + 'T' + item.time);
-        const diff = due - now;
-
-        const minutesLeft = Math.floor(diff / (1000 * 60));
-        if (minutesLeft > 0 && minutesLeft <= 60) {
-          const messages = [
-            "⏰ Tick tock! Only {time} left. Panic now or start working?",
-            "📚 Your assignment is due in {time}. Procrastination level: Expert?",
-            "😅 {time} left! Time to pretend you're productive.",
-            "🧠 Brain loading... only {time} remaining!",
-            "🔥 Pressure makes diamonds... and missed deadlines. {time} to go!"
-          ];
-          const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-          notify("Last Hour Reminder", randomMsg.replace("{time}", minutesLeft + " minutes"));
-        }
-      });
-    }
-
-    function addToCalendar(title, date, time) {
-      const [hour, minute] = time.split(':');
-      const start = new Date(date);
-      start.setHours(parseInt(hour));
-      start.setMinutes(parseInt(minute));
-
-      const end = new Date(start.getTime() + 60 * 60 * 1000);
-
-      const format = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-
-      const url = https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${format(start)}/${format(end)}&details=${encodeURIComponent(title)}&sf=true&output=xml;
-
-      window.open(url, '_blank');
-    }
-  </script>
-</body>
-</html>
+        const dueDateTime = new

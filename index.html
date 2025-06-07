@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assignment Scheduler</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      text-decoration: underline;
+    }
+
+    .input-section, .list-section {
+      max-width: 500px;
+      margin: 0 auto;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    input, button {
+      font-family: 'Courier New', Courier, monospace;
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      background-color: white;
+      color: black;
+      border: 1px solid white;
+      box-sizing: border-box;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 10px 0;
+      background-color: white;
+      color: black;
+      padding: 10px;
+      border-left: 5px solid black;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .remove-btn {
+      background-color: black;
+      color: white;
+      border: 1px solid white;
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+
+    .remove-btn:hover {
+      background-color: white;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Assignment Scheduler</h1>
+
+  <div class="input-section">
+    <label for="title">Assignment Title:</label>
+    <input type="text" id="title" placeholder="Enter assignment title">
+    
+    <label for="datetime">Due Date & Time:</label>
+    <input type="datetime-local" id="datetime" placeholder="Add due date and time">
+    
+    <button onclick="addAssignment()">Add Assignment</button>
+  </div>
+
+  <div class="list-section">
+    <h2>Upcoming Assignments</h2>
+    <ul id="assignmentList"></ul>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      requestNotificationPermission();
+      loadAssignments();
+      checkNotifications();
+    });
+
+    function addAssignment() {
+      const title = document.getElementById('title').value.trim();
+      const datetime = document.getElementById('datetime').value;
+
+      if (!title || !datetime) {
+        alert('Please fill in both fields.');
+        return;
+      }
+
+      const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
+      assignments.push({ title, datetime });
+      localStorage.setItem('assignments', JSON.stringify(assignments));
+      loadAssignments();
+
+      document.getElementById('title').value = '';
+      document.getElementById('datetime').value = '';
+    }
+
+    function loadAssignments() {
+      const list = document.getElementById('assignmentList');
+      list.innerHTML = '';
+      const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
+
+      assignments.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${item.title} - Due: ${item.datetime.replace('T', ' ')}</span>
+                        <button class="remove-btn" onclick="removeAssignment(${index})">Done</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    function removeAssignment(index) {
+      const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
+      assignments.splice(index, 1);
+      localStorage.setItem('assignments', JSON.stringify(assignments));
+      loadAssignments();
+    }
+
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        Notification.requestPermission();
+      }
+    }
+
+    function checkNotifications() {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const now = new Date();
+        const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
+
+        assignments.forEach(item => {
+          const due = new Date(item.datetime);
+          const diffMinutes = (due - now) / (1000 * 60);
+
+          if (diffMinutes > 0 && diffMinutes <= 30) {
+            notify("Upcoming Assignment", `${item.title} is due soon at ${due.toLocaleTimeString()}`);
+          }
+        });
+      }
+    }
+
+    function notify(title, body) {
+      new Notification(title, { body });
+    }
+  </script>
+
+</body>
+</html>

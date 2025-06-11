@@ -3,230 +3,230 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Assignment Scheduler</title>
+  <title>Unit Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: black;
-      color: white;
-      font-family: "Courier New", Courier, monospace;
-      padding: 20px;
+      margin: 0;
+      font-family: 'Lato', sans-serif;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+      background-size: 400% 400%;
+      animation: rgbFlow 20s ease infinite;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
     }
 
-    h1 {
+    @keyframes rgbFlow {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    .converter {
+      background: rgba(255,255,255,0.15);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       text-align: center;
-      text-decoration: underline;
+      max-width: 400px;
+      width: 100%;
     }
 
-    .input-section, .list-section {
-      max-width: 500px;
-      margin: 0 auto;
-      margin-bottom: 30px;
+    select, input {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #fff;
+      color: #000;
+      font-family: 'Lato', sans-serif;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #000;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #000;
     }
 
     label {
       display: block;
+      text-align: left;
       margin-top: 10px;
-      margin-bottom: 5px;
+      font-weight: bold;
+      color: #000;
     }
 
-    input, button {
-      font-family: "Courier New", Courier, monospace;
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      background-color: white;
-      color: black;
-      border: 1px solid white;
-      box-sizing: border-box;
+    .contactus {
+      margin-top: 2rem;
+      text-align: center;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
+    .instagram-logo {
+      width: 22px;
+      vertical-align: middle;
+      margin-right: 8px;
     }
 
-    li {
-      margin: 10px 0;
-      background-color: white;
-      color: black;
-      padding: 10px;
-      border-left: 5px solid black;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    a {
+      color: #000;
+      text-decoration: none;
     }
 
-    .remove-btn {
-      background-color: black;
-      color: white;
-      border: 1px solid white;
-      cursor: pointer;
-      padding: 5px 10px;
-      margin-left: 5px;
-    }
-
-    .remove-btn:hover {
-      background-color: white;
-      color: black;
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+  <img src="https://iili.io/FK3bcx9.png" width="350" height="120">
+  <div class="converter">
+    <h2>Unit Converter</h2>
 
-  <h1>Assignment Scheduler</h1>
+    <label for="unitType">Choose Unit Type:</label>
+    <select id="unitType" onchange="populateUnits()">
+      <option value="length">Length</option>
+      <option value="weight">Weight</option>
+      <option value="temperature">Temperature</option>
+      <option value="speed">Speed</option>
+      <option value="area">Area</option>
+      <option value="volume">Volume</option>
+    </select>
 
-  <div class="input-section">
-    <label for="title">Assignment Title:</label>
-    <input type="text" id="title" placeholder="Enter assignment title">
+    <label for="fromUnit">From:</label>
+    <select id="fromUnit"></select>
 
-    <label for="date">Due Date:</label>
-    <input type="date" id="date">
+    <label for="toUnit">To:</label>
+    <select id="toUnit"></select>
 
-    <label for="time">Due Time:</label>
-    <input type="time" id="time">
+    <label for="value">Value:</label>
+    <input type="number" id="value" placeholder="Enter value" />
 
-    <button onclick="addAssignment()">Add Assignment</button>
+    <div class="result" id="result">Result: </div>
   </div>
 
-  <div class="list-section">
-    <h2>Upcoming Assignments</h2>
-    <ul id="assignmentList"></ul>
+  <div class="contactus">
+    <div class="owner">Owned by Shubham Karpe</div>
+    <a href="https://www.instagram.com/sparknest.tools/" target="_blank">
+      <img class="instagram-logo" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"/>sparknest.tools
+    </a><br/>
+    <a href="https://www.instagram.com/itz_shubham_09_/" target="_blank">
+      <img class="instagram-logo" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"/>@itz_shubham_09_
+    </a>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      requestNotificationPermission();
-      loadAssignments();
-      checkNotifications();
-      setInterval(checkLastHourNotifications, 600000); // every 10 min
-      setInterval(checkNotifications, 3600000); // every 1 hour
-    });
+    const units = {
+      length: {
+        "Meters": 1,
+        "Kilometers": 0.001,
+        "Centimeters": 100,
+        "Miles": 0.000621371
+      },
+      weight: {
+        "Grams": 1,
+        "Kilograms": 0.001,
+        "Pounds": 0.00220462
+      },
+      temperature: {
+        "Celsius": "C",
+        "Fahrenheit": "F",
+        "Kelvin": "K"
+      },
+      speed: {
+        "m/s": 1,
+        "km/h": 3.6,
+        "mph": 2.23694
+      },
+      area: {
+        "Square Meters": 1,
+        "Square Kilometers": 0.000001,
+        "Acres": 0.000247105,
+        "Hectares": 0.0001
+      },
+      volume: {
+        "Liters": 1,
+        "Milliliters": 1000,
+        "Cubic Meters": 0.001,
+        "Gallons": 0.264172
+      }
+    };
 
-    function addAssignment() {
-      const title = document.getElementById('title').value.trim();
-      const date = document.getElementById('date').value;
-      const time = document.getElementById('time').value;
+    function populateUnits() {
+      const unitType = document.getElementById("unitType").value;
+      const fromUnit = document.getElementById("fromUnit");
+      const toUnit = document.getElementById("toUnit");
 
-      if (!title || !date || !time) {
-        alert('Please fill in all fields.');
+      fromUnit.innerHTML = '';
+      toUnit.innerHTML = '';
+
+      for (let unit in units[unitType]) {
+        const option1 = document.createElement("option");
+        option1.value = unit;
+        option1.text = unit;
+        fromUnit.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = unit;
+        option2.text = unit;
+        toUnit.appendChild(option2);
+      }
+
+      convert();
+    }
+
+    function convertTemperature(value, from, to) {
+      let celsius;
+
+      if (from === "Celsius") celsius = value;
+      else if (from === "Fahrenheit") celsius = (value - 32) * 5 / 9;
+      else if (from === "Kelvin") celsius = value - 273.15;
+
+      if (to === "Celsius") return celsius;
+      else if (to === "Fahrenheit") return (celsius * 9 / 5) + 32;
+      else if (to === "Kelvin") return celsius + 273.15;
+    }
+
+    function convert() {
+      const unitType = document.getElementById("unitType").value;
+      const from = document.getElementById("fromUnit").value;
+      const to = document.getElementById("toUnit").value;
+      const value = parseFloat(document.getElementById("value").value);
+
+      if (isNaN(value)) {
+        document.getElementById("result").innerText = "Result: ";
         return;
       }
 
-      const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
-      assignments.push({ title, date, time });
-      localStorage.setItem('assignments', JSON.stringify(assignments));
-      loadAssignments();
+      let result;
 
-      document.getElementById('title').value = '';
-      document.getElementById('date').value = '';
-      document.getElementById('time').value = '';
-    }
-
-    function loadAssignments() {
-      const list = document.getElementById('assignmentList');
-      list.innerHTML = '';
-      const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
-
-      assignments.forEach((item, index) => {
-        const time12 = formatTo12Hour(item.time);
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <span>${item.title} - Due: ${item.date} ${time12}</span>
-          <div>
-            <button class="remove-btn" onclick="removeAssignment(${index})">Done</button>
-            <button class="remove-btn" onclick="addToCalendar('${item.title}', '${item.date}', '${item.time}')">🗓</button>
-          </div>
-        `;
-        list.appendChild(li);
-      });
-    }
-
-    function formatTo12Hour(timeStr) {
-      const [hour, minute] = timeStr.split(':');
-      let h = parseInt(hour);
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      h = h % 12 || 12;
-      return ${h}:${minute} ${ampm};
-    }
-
-    function removeAssignment(index) {
-      const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
-      assignments.splice(index, 1);
-      localStorage.setItem('assignments', JSON.stringify(assignments));
-      loadAssignments();
-    }
-
-    function requestNotificationPermission() {
-      if ('Notification' in window && Notification.permission !== 'granted') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            console.log("Notifications allowed");
-          }
-        });
+      if (unitType === "temperature") {
+        result = convertTemperature(value, from, to);
+      } else {
+        const base = value / units[unitType][from];
+        result = base * units[unitType][to];
       }
+
+      document.getElementById("result").innerText = `Result: ${result.toFixed(4)} ${to}`;
     }
 
-    function checkNotifications() {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        const now = new Date();
-        const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
-
-        assignments.forEach(item => {
-          const dueDateTime = new Date(item.date + 'T' + item.time);
-          const diffDays = Math.floor((dueDateTime - now) / (1000 * 60 * 60 * 24));
-
-          if (diffDays === 0) {
-            notify("Due Today", ${item.title} is due today at ${formatTo12Hour(item.time)}!);
-          } else if (diffDays === 1) {
-            notify("Due Tomorrow", ${item.title} is due tomorrow at ${formatTo12Hour(item.time)}!);
-          }
-        });
-      }
-    }
-
-    function notify(title, body) {
-      new Notification(title, { body });
-    }
-
-    function addToCalendar(title, date, time) {
-      const [hour, minute] = time.split(':');
-      const start = new Date(date);
-      start.setHours(parseInt(hour));
-      start.setMinutes(parseInt(minute));
-
-      const end = new Date(start.getTime() + 60 * 60 * 1000);
-
-      const format = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-
-      const url = https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${format(start)}/${format(end)}&details=${encodeURIComponent(title)}&sf=true&output=xml;
-
-      window.open(url, '_blank');
-    }
-
-    function checkLastHourNotifications() {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        const now = new Date();
-        const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
-
-        assignments.forEach(item => {
-          const due = new Date(item.date + 'T' + item.time);
-          const diff = due - now;
-
-          const minutesLeft = Math.floor(diff / (1000 * 60));
-          if (minutesLeft > 0 && minutesLeft <= 60) {
-            const messages = [
-              "⏰ Tick tock! Only {time} left. Panic now or start working?",
-              "📚 Your assignment is due in {time}. Procrastination level: Expert?",
-              "😅 {time} left! Time to pretend you're productive.",
-              "🧠 Brain loading... only {time} remaining!",
-              "🔥 Pressure makes diamonds... and missed deadlines. {time} to go!"
-            ];
-            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-            notify("Last Hour Reminder", randomMsg.replace("{time}", minutesLeft + " minutes"));
-          }
-        });
-      }
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+      populateUnits();
+      document.getElementById("value").addEventListener("input", convert);
+      document.getElementById("fromUnit").addEventListener("change", convert);
+      document.getElementById("toUnit").addEventListener("change", convert);
+    });
   </script>
 </body>
 </html>
